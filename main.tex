@@ -1,0 +1,184 @@
+\documentclass[10pt,landscape]{article}
+
+\input{packages}
+\input{mathCommands}
+\input{textSettings}
+
+\newcommand{\topiccolor}{green}
+\newcommand{\topic}[2]{%
+	\renewcommand{\topiccolor}{#1}
+	\begin{tcolorbox}[boxsep=0.5mm, left=1mm, right=1mm, top=0mm, bottom=0mm,
+		colback=#1!30, colframe=#1, arc is angular]%
+		\centering \textbf{#2}%
+	\end{tcolorbox}%
+}
+\newcommand{\cbf}[1]{\textcolor{\topiccolor!70!black}{\textbf{#1}}}
+
+\begin{document}
+
+\begin{multicols*}{3}
+\begin{tcolorbox}[colframe=black, colback=white]
+	\centering \large Computational Quantum Mechanics
+\end{tcolorbox}
+
+\topic{blue}{One-body problem}
+
+For time-independent 1D SE, we use \cbf{the Numerov algorithm}.
+It uses the central difference approximation of the second derivative
+to get the next point from the previous two.
+
+\topic{cyan}{MPS}
+
+No thank you!
+
+\topic{red}{Monte-Carlo methods}
+
+\cbf{MC integration}:
+$\int f(x) \dl x = \sum_{x_i} f(x_i)/N$.
+
+\cbf{Importance sampling}:
+$\int f(x) \dl x = \int f(x)/p(x) \cdot p(x) \dl x = \sum_{x_i} f(x_i) / p(x_i)$,
+$x_i$ sampled from pdf $p(x)$.
+
+\cbf{MCMC}: $x_i$ generated from Markov Chain
+For $x_i$ to be distributed as $p(x)$, it is sufficient that
+\cbf{detailed balance} is fulfilled:
+\[
+	T(x \to x') p(x) = T(x' \to x) p(x')
+\]
+For the \cbf{metropolis method}, $T(x \to x') = \omega_{xx'}A_{x x'}$,
+where $\omega$ is a symmetric, stochastic matrix which should
+be interpreted as a proposal distribution and $A_{x x'}$ is
+to be treated as acceptance probabilities.
+
+The \cbf{Wolff algorithm} can be useful when simulating the Ising model
+using MCMC.
+It proposes new states where entire clusters of spins are flipped,
+instead of just one.
+
+We can also use MCMC for \cbf{quantum spin systems}. To do so, we must use a
+quantum to classical mapping:
+\[
+	Z = \tr\left[e^{-\beta \hat H}\right]
+	= \sum_C W(C)
+\]%
+\[
+	\braket{\hat m} = \tr\left[\hat m e^{-\beta \hat H} \right]
+	= \sum_C m(C) W(C)
+\]
+It turns out that we can always make a mapping from a d-dimensional quantum
+system to a (d+1)-dimensional classical system.
+For a single spin-1/2 you can accomplish it by splitting the exponential into a
+product of $M$ factors and inserting a resolution of identity between all of
+them:
+\[
+	Z = \sum_i \braket{i | U^M |i}
+	= \sum_{\{i_1,\ldots,i_M\}} \braket{i_1|U|i_2}\bra{i_2}
+	\cdots\ket{i_M}\braket{i_M|U|i_1}
+\]
+Increasing $M$ to infinity, the probability of having two neighbouring sites
+with opposite spin goes to 0 at a rate such that the total number of domain
+walls remains finite. Therefore, we can change our description to only keep
+track of where the domain walls are.
+\begin{center}
+\begin{tikzpicture}
+	\draw (0,0) -- node[anchor=south]{$\uparrow$}
+		(2,0) node[anchor=north]{$i_1$} [color=red, ultra thick];
+	\draw (2,0) -- node[anchor=south]{$\downarrow$}
+		(3,0) node[anchor=north]{$i_2$} [color=blue, ultra thick];
+	\draw (3,0) -- node[anchor=south]{$\uparrow$}
+		(4.5,0) node[anchor=north]{$i_3$} [color=red, ultra thick];
+	\draw (4.5,0) -- node[anchor=south]{$\downarrow$}
+		(6,0) node[anchor=north]{$i_4$} [color=blue, ultra thick];
+	\draw (6,0) -- node[anchor=south]{$\uparrow$}
+		(6.5,0) [color=red, ultra thick];
+\end{tikzpicture}
+\end{center}
+\cbf{Quantum Monte Carlo for particles} is yet another application of MC methods
+this time to $N$ quantum particles in $d$ dimensions in a thermal state.
+Do again subdivision into $M$ factors and resolution of identity, though this
+time with $\int \ket{R}\bra{R} \dl R$.
+This gives a high dimensional integral which we calculate with MCMC methods.
+The configuration being sampled is the many-particle paths.
+Updates are proposed by choosing a single time slice of a single world line (a
+\cbf{bead}) and moving it a bit (gaussian proposal).
+\begin{center}
+	\begin{tikzpicture}[scale=0.3, very thick]
+		% Time slices
+		\foreach \y in {0,...,6}
+			\draw (-4, \y) -- (14, \y) [dashed, color=red!20];
+
+		% World lines
+		\draw (0,0) -- (-1,1) -- (0,2) -- (-1,3) -- (-3,4) -- (-3,5) -- (0,6)
+			[color=green!50!black];
+		\draw (4,0) -- (2,1) -- (3,2) -- (5,3) -- (3,4) -- (5,5) -- (4,6)
+			[color=green!50!black];
+		\draw (8,0) -- (8,1) -- (9,2)  -- (7,3) -- (7,4) -- (7,5) -- (8,6)
+			[color=green!50!black];
+		\draw (12,0) -- (13,1) -- (13,2) -- (13,3) -- (12,4) -- (13,5) -- (12,6)
+			[color=green!50!black];
+
+		\draw [<-, blue, shorten <=2pt] (9,2) .. controls (10,3) .. (10,4)
+			node[anchor=south]{Beads};
+		\draw [<-, blue, shorten <=6pt] (7,3) .. controls (8,3) and (10,3) .. (10,4);
+		\draw [<-, blue, shorten <=4pt] (8,1) .. controls (11,1) and (10,3) .. (10,4);
+		\node at (15, 3) [rotate=90, color=red] {$M$ time slices};
+		\node at (5, -1) [color=green!50!black] {$N$ world lines};
+		\node at (5, 8) []{Many-particle path};
+		\draw [dashed, rounded corners=6pt] (-5, -2) rectangle  (16, 7);
+	\end{tikzpicture}
+\end{center}
+The goal of \cbf{Diffusion Monte Carlo} is to find the ground state of a bosonic
+system.
+Instead of fixing $\beta$ and splitting it into $\Delta \tau M$ and wiggling the
+world lines, we fix $\tau$ and apply $e^{-\Delta\tau \hat H}$ a bunch of times.
+The state is $M$ walkers with positions and weights (initially random/1).
+Applying the operator consists of drawing displacements from a gaussian,
+which incorporates the kinetic energy part of $\hat H$, and updating the weights
+using the potential. We then remove walkers with low weights and add copies of
+ones with high weights. This is an alternative method to the acceptance
+probability previously discussed.
+
+\topic{orange}{Electronic structure}
+
+How do we find the energy eigenstates of a molecule?
+The relevant Hamiltonian is
+\[
+	\begin{split}
+		H &= 
+		-\sum_j^{N_e} \frac{\hbar^2}{2m_e} \nabla^2_{r_j} 
+		- \sum_\ell^{N_n} \frac{\hbar^2}{2m_\ell} \nabla^2_{R_\ell}
+		+ \frac12 \sum_{i\neq j} \frac{e^2}{\abs{r_i - r_j}}\\
+		  &\phantom{=} 
+		+ \frac12 \sum_{\ell\neq m} \frac{Z_\ell Z_m e^2}{\abs{R_\ell - R_m}}
+		- \sum_{j,\ell}^{N_e, N_n} \frac{Z_\ell e^2}{\abs{r_j - R_\ell }}\\
+		  &= T_e + T_n + V_{ee} + V_{nn} + V_{ne}
+	\end{split}
+\]
+The first step is to use the \cbf{Born-Oppenheimer Approximation}:
+nuclei are heavy compared to electrons, so they're effectively frozen when
+solving for the electron wave functions.
+
+The \cbf{Hartree} method is assuming non-interacting electrons in a mean field.
+You first guess some wavefunctions for the individual electrons and then,
+using these as the wavefunction the electrons interact with,
+calculate new wavefunctions and iterate until it seems to converge.
+Once converged, take a slater determinant to find the ground state.
+
+The \cbf{Hartree-Fock} method also assumes independent (but not non-interacting) 
+electrons in a mean field, but the asymmetry is considered from the beginning.
+First take some orthonormal set of single-electron wave functions $\phi_i$.
+Then take some new single-electron wave functions that are linear combinations
+of these: $\varphi_k = \sum_i \alpha_{ik} \phi_i$.
+Letting $\Psi$ be the many body wave function gotten from a Slater determinant
+of the $\varphi_k$, minimize $\braket{\Psi | H_\text{BO} | \Psi}$.
+Writing it out gives rise to an \emph{exchange term} owing to the Pauli
+principle.
+
+\cbf{Density Functional Theory}
+
+
+
+\end{multicols*}
+
+\end{document}
