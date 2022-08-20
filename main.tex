@@ -22,7 +22,7 @@
 	\small David Hambr\ae{}us
 \end{tcolorbox}
 
-\topic{blue}{One-body problem}
+\topic{teal}{One-body problem}
 
 For time-independent 1D SE, we use \cbf{the Numerov algorithm}.
 It solves $f''(x) = k(x)f(x)$.
@@ -109,7 +109,7 @@ Note that while bosonic creation and annihilation operators commute, fermionic
 anticommute, so the order matters. For example, 
 $a_2^\dagger\ket{1000} = -\ket{1100}$.
 
-\topic{purple}{Quantum Spin Models}
+\topic{olive}{Quantum Spin Models}
 
 We've talked about three spin models,
 the \cbf{Transverse Field Ising Model}, with the Hamiltonian
@@ -127,7 +127,7 @@ the Heisenberg model,
 	S_j^y + \Delta \hat S_i^z \hat S_j^z
 \]
 
-\topic{violet}{Exact Diagonalization}
+\topic{lime}{Exact Diagonalization}
 
 Brute force exact diagonalization of the Hamiltonian is only possible in
 systems with less than about 20 particles, but since the Hamiltonian almost
@@ -165,9 +165,73 @@ and to second order as
 	\prod_{k=K}^1 e^{-i\hat h_k \Delta t/2}
 \]
 
-\topic{cyan}{Matrix Product States / Operators}
+\topic{blue}{Matrix Product States / Operators}
 
-No thank you!
+A \emph{Matrix Product State} is a generalization of the product state.
+First of all, note that a general state $\ket \psi$ can be written
+$\ket \psi = \sum_{i_1 \ldots i_n} \psi_{i_1 i_2 \ldots i_n}
+\ket{i_1}\ket{i_2}\ldots\ket{i_n}$.
+If we leave the basis implied, a state is effectively an $n$-tensor.
+A product state is one where this $n$-tensor is an outer product of $n$
+1-tensors, like so 
+$\psi_{i_1\ldots i_n} =
+\phi^{(1)}_{i_1}\phi^{(2)}_{i_2}\ldots \phi^{(n)}_{i_n}$.
+The matrix product state is the same but the 1-tensors are replaced by 2-tensors
+(matrices):
+$\psi_{i_1\ldots i_n} =
+A^{(1)}_{i_1}A^{(2)}_{i_2}\ldots A^{(n)}_{i_n}$.
+\begin{center}
+	\begin{tikzpicture}[scale=0.7, very thick]
+		\draw[color=\topiccolor, fill=\topiccolor!30]
+			(0,0) rectangle node[black]{$\psi$} (4,1);
+		\draw
+			(0.5,0) -- (0.5,-1) node[anchor=north]{$i_1$}
+			(1.5,0) -- (1.5,-1) node[anchor=north]{$i_2$}
+			(3.5,0) -- (3.5,-1) node[anchor=north]{$i_n$};
+		\node at (2.5,-0.5) [] {$\cdots$};
+
+		\begin{scope}[xshift=6cm]
+			\draw[color=\topiccolor, fill=\topiccolor!30]
+				(0,0) rectangle node[black]{$A^{(1)}$} (1,1);
+			\draw (0.5,0) -- (0.5,-1) node[anchor=north]{$i_1$};
+			\draw (1,0.5) -- (1.5,0.5);
+
+			\draw[color=\topiccolor, fill=\topiccolor!30]
+				(1.5,0) rectangle node[black]{$A^{(2)}$} (2.5,1);
+			\draw (2,0) -- (2,-1) node[anchor=north]{$i_2$};
+			\draw (2.5,0.5) -- (3,0.5);
+
+			\node at (3.5,-0.5) [] {$\cdots$};
+
+			\draw (4.0,0.5) -- (4.5,0.5);
+			\draw[color=\topiccolor, fill=\topiccolor!30]
+				(4.5,0) rectangle node[black]{$A^{(n)}$} (5.5,1);
+			\draw (5,0) -- (5,-1) node[anchor=north]{$i_n$};
+
+		\end{scope}
+
+	\end{tikzpicture}
+\end{center}
+
+As it turns out, this is actually enough to describe every possible state,
+given that the bond dimensions are high enough.
+The way to find the MPS of a given general state is through \emph{singular value
+decomposition}.
+You merge the last $n-1$ indices into one and preform singular value
+decomposition on the $d\times d^{n-1}$ matrix to obtain
+$U_{i_1 a_1} S_{a_1 a_1'} V_{a_1'i_2i_3\ldots i_n}$.
+Then let $U_{i_1 a_1}$ be $A^{(1)}$ multiply together the $S$ and $V$ to obtain
+a new $\psi_{a_1 i_2 i_3\ldots}$.
+Then repeat, but now grouping $a_1$ and $i_2$ on one side, with the rest on the
+other thus making a $d^2 \times d^{n-2}$ matrix.
+Thus $U$ and $S$ are $d^2 \times d^2$, while $V$ is $d^2 \times d^{n-2}$.
+The next time, the grouping makes a $d^3 \times d^{n-3}$ and so on.
+As you can see the bond dimension becomes exponential, which is expected since
+all we've done is rewrite the tensor, so we still need exponentially many
+parameters.
+The good thing is that when you have a state following the area law, it should
+be close to a product state meaning that many of the singular values will be
+almost zero and can thus be ignored.
 
 \topic{red}{Monte-Carlo methods}
 
