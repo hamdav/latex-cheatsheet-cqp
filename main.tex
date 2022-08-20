@@ -18,7 +18,8 @@
 
 \begin{multicols*}{3}
 \begin{tcolorbox}[colframe=black, colback=white]
-	\centering \large Computational Quantum Mechanics
+	\centering \large Computational Quantum Mechanics\\
+	\small David Hambr\ae{}us
 \end{tcolorbox}
 
 \topic{blue}{One-body problem}
@@ -33,7 +34,7 @@ Bound states can be found using the \cbf{Bidirectional-Shooting method}.
 Perform Numerov from right and left and scale them so they match.
 Vary $b$ until the derivatives match too.
 \begin{center}
-	\begin{tikzpicture}[xscale=0.7, yscale=0.5]
+	\begin{tikzpicture}[xscale=0.7, yscale=0.5, thick]
 		% Coordinate axes
 		\draw[->,gray] (0, -3) -- (0, 1);
 		\draw[->,gray] (0,0) -- (10.5,0) node[anchor=north]{$x$};
@@ -52,14 +53,14 @@ Vary $b$ until the derivatives match too.
 				  to[out=45] (2,1) node[xshift=0.7cm]{$\Psi_L$}
 				  to (3.5,-1)
 				  to[in=220] (5, 1);
-		\draw[out=180, in=0, color=\topiccolor!30,
+		\draw[out=180, in=0, color=\topiccolor,
 			-{>[sep=10pt]>[sep=10pt]>[sep=1pt]}]
 			(10,0) to[in=-20] (9,0.2) node[anchor=south]{$\Psi_R$}
 				   to[out=160] (7.5,1)
 				   to[in=10] (5,-0.5);
 		% Continuous
-		\draw[out=180, in=0, color=\topiccolor,]
-			(10,0) to[in=40] (9,-0.4)
+		\draw[out=180, in=0, color=\topiccolor!30,]
+			(10,0) to[in=40] (9,-0.4)node[anchor=west,yshift=-0.4cm]{$C\cdot\Psi_R$}
 				   to[out=-140] (7.5,-2)
 				   to (5,1)[in=-20];
 
@@ -72,7 +73,7 @@ $\psi(\mathbf{r}) = \psi_x(x)\psi_y(y)\psi_z(z)$. Or if the potential has a
 spherical symmetry, try an ansatz with the spherical harmonics.
 
 For solving the time-\emph{dependent} Schrödinger equation, we either use
-spectral methods -- expressing the initial wave function as a linear combination
+\cbf{spectral methods} -- expressing the initial wave function as a linear combination
 of energy eigenfunctions and evolving those -- but this is only tractable for
 small systems since we need an eigenbasis. The other method is direct numerical
 integration for which we use the \cbf{split operator method}.
@@ -81,6 +82,51 @@ integration for which we use the \cbf{split operator method}.
 	e^{-i \Delta t \hat V / 2} e^{-i \Delta t \hat T} e^{-i \Delta t \hat V / 2}
 \]
 for small $\Delta t$.
+
+\topic{green}{Many-body problems}
+
+In quantum mechanics, particles like the electron are \emph{indistinguishable}
+and exchanging two of them cannot affect any observable. Thus, the wavefunction
+can only differ with a phase $\pm1$.
+Therefore, not every function in $\mathcal H^{\otimes N}$ is a valid wave
+function.
+A product state 
+$\psi(r_1, r_2, \ldots, r_N) = \psi_1(r_1) \psi_2(r_2) \ldots \psi_N(r_N)$
+has to be replaced by a sum of all of the possible permutations, with the
+appropriate phase. For bosonic systems, it's just the sum of all permutations,
+while for fermionic systems the odd permutations are added with a phase of -1.
+This can be written as a \cbf{Slater determinant}.
+Note that the general (fermionic) state is a \emph{sum} of Slater determinants,
+and only special states can be written as a single Slater determinant,
+analogously to product states.
+
+In second quantization, and given a set of single particle wave functions
+$\set{\phi_i}_i$ we write a state as
+\[
+	\ket{n_1 n_2 n_3 \ldots} = \prod_i (a_i^\dagger)^{n_i} \ket 0
+\]
+Note that while bosonic creation and annihilation operators commute, fermionic
+anticommute, so the order matters. For example, 
+$a_2^\dagger\ket{1000} = -\ket{1100}$.
+
+\topic{purple}{Quantum Spin Models}
+
+We've talked about three spin models,
+the \cbf{Transverse Field Ising Model}, with the Hamiltonian
+\[
+	H = J\sum_{\langle i,j \rangle} \hat S_i^z \hat S_j^z + \sum_i h S_i^x,
+\]
+the \cbf{Heisenberg Model}, with the Hamiltonian
+\[
+	H = J\sum_{\langle i,j \rangle} \hat{\vec{S_i}} \hat{\vec{S_j}},
+\]
+and the more general \cbf{XXZ} model, which is like an anisotropic version of
+the Heisenberg model,
+\[
+	H = J\sum_{\langle i,j \rangle}  \hat S_i^x \hat S_j^x + \hat S_i^y \hat
+	S_j^y + \Delta \hat S_i^z \hat S_j^z
+\]
+
 
 \topic{cyan}{Matrix Product States / Operators}
 
@@ -276,3 +322,4 @@ the single particle energies of the system.
 \end{multicols*}
 
 \end{document}
+
