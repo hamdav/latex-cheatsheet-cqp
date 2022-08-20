@@ -24,10 +24,65 @@
 \topic{blue}{One-body problem}
 
 For time-independent 1D SE, we use \cbf{the Numerov algorithm}.
-It uses the central difference approximation of the second derivative
-to get the next point from the previous two.
+It solves $f''(x) = k(x)f(x)$.
+To do this, Taylor expand $f$ and add $f(x+\Delta x) + f(x-\Delta x)$.
+In that expression, replace the fourth derivative by the finite difference
+approximation to the second derivative of $f''$, and $f''$ by $k(x)f(x)$.
+To get started, you thus need two points, $\Delta x$ apart.
+Bound states can be found using the \cbf{Bidirectional-Shooting method}.
+Perform Numerov from right and left and scale them so they match.
+Vary $b$ until the derivatives match too.
+\begin{center}
+	\begin{tikzpicture}[xscale=0.7, yscale=0.5]
+		% Coordinate axes
+		\draw[->,gray] (0, -3) -- (0, 1);
+		\draw[->,gray] (0,0) -- (10.5,0) node[anchor=north]{$x$};
+		% Potential
+		\draw (1, 0) to[out=0, in=120] (2, -2) node[anchor=east]{$V$}
+					 to[out=300, in=160] (4,-2)
+					 to[out=-20, in=225] (5,-1.5)
+					 to[out=45, in=180] (6,-1)
+					 to[out=0, in=180] (9,0);
+		% b
+		\draw[dashed] (5,1.2) -- node[anchor=east]{$b$} (5,-1.5);
+		% non-continuous
+		\draw[out=0, in=180, color=\topiccolor,
+			-{>[sep=10pt]>[sep=10pt]>[sep=1pt]}]
+			(0,0) to[in=225] (1.5,0.5)
+				  to[out=45] (2,1) node[xshift=0.7cm]{$\Psi_L$}
+				  to (3.5,-1)
+				  to[in=220] (5, 1);
+		\draw[out=180, in=0, color=\topiccolor!30,
+			-{>[sep=10pt]>[sep=10pt]>[sep=1pt]}]
+			(10,0) to[in=-20] (9,0.2) node[anchor=south]{$\Psi_R$}
+				   to[out=160] (7.5,1)
+				   to[in=10] (5,-0.5);
+		% Continuous
+		\draw[out=180, in=0, color=\topiccolor,]
+			(10,0) to[in=40] (9,-0.4)
+				   to[out=-140] (7.5,-2)
+				   to (5,1)[in=-20];
 
-\topic{cyan}{MPS}
+	\end{tikzpicture}
+\end{center}
+
+For higher dimensions, try using symmetries first because partial differential
+equation solvers are a lot more difficult to handle. Try factorizing
+$\psi(\mathbf{r}) = \psi_x(x)\psi_y(y)\psi_z(z)$. Or if the potential has a
+spherical symmetry, try an ansatz with the spherical harmonics.
+
+For solving the time-\emph{dependent} Schrödinger equation, we either use
+spectral methods -- expressing the initial wave function as a linear combination
+of energy eigenfunctions and evolving those -- but this is only tractable for
+small systems since we need an eigenbasis. The other method is direct numerical
+integration for which we use the \cbf{split operator method}.
+\[
+	e^{-i\Delta t(\hat T + \hat V)} \approx 
+	e^{-i \Delta t \hat V / 2} e^{-i \Delta t \hat T} e^{-i \Delta t \hat V / 2}
+\]
+for small $\Delta t$.
+
+\topic{cyan}{Matrix Product States / Operators}
 
 No thank you!
 
@@ -118,10 +173,10 @@ Updates are proposed by choosing a single time slice of a single world line (a
 		\draw (12,0) -- (13,1) -- (13,2) -- (13,3) -- (12,4) -- (13,5) -- (12,6)
 			[color=green!50!black];
 
-		\draw [<-, blue, shorten <=2pt] (9,2) .. controls (10,3) .. (10,4)
+		\draw [<-, blue!60, shorten <=2pt] (9,2) .. controls (10,3) .. (10,4)
 			node[anchor=south]{Beads};
-		\draw [<-, blue, shorten <=6pt] (7,3) .. controls (8,3) and (10,3) .. (10,4);
-		\draw [<-, blue, shorten <=4pt] (8,1) .. controls (11,1) and (10,3) .. (10,4);
+		\draw [<-, blue!60, shorten <=6pt] (7,3) .. controls (8,3) and (10,3) .. (10,4);
+		\draw [<-, blue!60, shorten <=4pt] (8,1) .. controls (11,1) and (10,3) .. (10,4);
 		\node at (15, 3) [rotate=90, color=red] {$M$ time slices};
 		\node at (5, -1) [color=green!50!black] {$N$ world lines};
 		\node at (5, 8) []{Many-particle path};
@@ -165,7 +220,7 @@ using these as the wavefunction the electrons interact with,
 calculate new wavefunctions and iterate until it seems to converge.
 Once converged, take a slater determinant to find the ground state.
 
-The \cbf{Hartree-Fock} method also assumes independent (but not non-interacting) 
+The \cbf{Hartree-Fock} method also assumes non-interacting
 electrons in a mean field, but the asymmetry is considered from the beginning.
 First take some orthonormal set of single-electron wave functions $\phi_i$.
 Then take some new single-electron wave functions that are linear combinations
@@ -175,8 +230,47 @@ of the $\varphi_k$, minimize $\braket{\Psi | H_\text{BO} | \Psi}$.
 Writing it out gives rise to an \emph{exchange term} owing to the Pauli
 principle.
 
-\cbf{Density Functional Theory}
+\cbf{Density Functional Theory} is concerned with the electron ground state
+density $n_0$, rather than the actual wavefunction. 
+There is a one-to-one correspondence between $n_0$ and $V_\text{ext}$.
+In the case of molecules, $V_\text{ext} = V_{ne}$, but we could have a more
+general external potential.
+The clever point is that everything that is not $V_\text{ext}$ is the same no
+matter which system we are trying to solve.
+The energy functional that we minimize is
+\begin{align*}
+	E_{[v_\text{ext}]}[n] &= \min_{\Psi\to n} 
+	\braket{\Psi| T_e + V_{ee} + V_\text{ext} |\Psi}\\
+	&= \min_{\Psi\to n} 
+\braket{\Psi| T_e + V_{ee} |\Psi}
+	+ \int \dl r v_\text{ext}(r) n(r)
+\end{align*}
+The first term we call $F[n]$ and that is universal -- it does not depend on the
+specific problem. The $\Psi \to n$ notation means $\Psi$ such that the density is
+$n$.
 
+Unfortunately, since the correlations in $\Psi$ can be complicated (i.e.\ it is
+not a single Slater determinant state), this is still not an easy
+problem. The \cbf{Kohn-Sham solution scheme} tries to remedy this by trying to
+find a non-interacting (i.e. it \emph{is} a single Slater determinant state)
+system with the same density as the exact one.
+To compensate for the errors coming from this ignoring of the correlation,
+we add an additional term including the unknown correction called the
+exchange-correlation functional $E_{XC}$:
+\[
+	E[n] = E_k[n] + E_c[n] + E_{XC}[n] + V_\text{ext}[n]
+\]
+Minimizing this under the condition $\int n \dl n = N_e$ using lagrange
+multipliers gives single-particle equations called the Kohn-Sham equations.
+\begin{align*}
+	\left[-\frac{\hbar^2}{2 m_e} \nabla^2 + V_\text{eff}(r)\right] \varphi_j =
+	\varepsilon_j \varphi_j\\
+	V_\text{eff}(r) = \int \dl r' \frac{n}{\abs{r - r'}} + V_{XC}(r) +
+	V_\text{ext}(r)
+\end{align*}
+Note that this is in principle just a trick to find the density, you should not
+expect the single particle energies $\varepsilon_j$ to actually correspond to
+the single particle energies of the system.
 
 
 \end{multicols*}
