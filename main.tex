@@ -12,7 +12,7 @@
 		\centering \textbf{#2}%
 	\end{tcolorbox}%
 }
-\newcommand{\cbf}[1]{\textcolor{\topiccolor!70!black}{\textbf{#1}}}
+\newcommand{\cbf}[1]{\textcolor{\topiccolor!80!black}{\textbf{#1}}}
 
 \begin{document}
 
@@ -127,6 +127,43 @@ the Heisenberg model,
 	S_j^y + \Delta \hat S_i^z \hat S_j^z
 \]
 
+\topic{violet}{Exact Diagonalization}
+
+Brute force exact diagonalization of the Hamiltonian is only possible in
+systems with less than about 20 particles, but since the Hamiltonian almost
+always is sparse, some cleverer methods can be used.
+\cbf{Lanczos Algorithm} is basically the power method on steroids.
+Pick a random unit vector $r_0$. Find the next vector by applying $H$ to the
+previous one and orthonormalizing with the set so far.
+Expressed in the basis of these vectors, the Hamiltonian is tridiagonal and thus
+easily diagonalized.
+Furthermore, the eigenvalues of this matrix for $M \ll 2^N$ converge quickly to
+the eigenvalues of the full Hamiltonian.
+
+To further decrease the number of operations required, \cbf{symmetries} of the
+Hamiltonian can be utilized.
+A symmetry is basically just an operator that commutes with the Hamiltonian,
+$[S,H]=0$.
+This implies that $\braket{s_1|H|s_2} = 0$ if $\ket{s_1}$ and $\ket{s_2}$ are
+eigenstates of $S$ with different eigenvalues, and thus $H$ is block diagonal
+and we can restrict our diagonalization procedure to the blocks.
+
+COMMENT: Is this even exact diagonalization? It was in that chapter, but maybe
+that was a mistake...
+If we want to solve for the \cbf{Time-Evolution} of a many body system with a
+time-independent Hamiltonian we can use the \cbf{Suzuki-Trotter decomposition}.
+It is similar to the split operator method.
+Split the Hamiltonian into $K$ easily exponentiated, though not necessarily
+commuting terms $\hat h_k$, we approximate the time evolution operator in the
+first order Suzuki-Trotter decomp.\ as
+\[
+	e^{-i\hat H\Delta t} = \prod_{k=1}^K e^{-i\hat h_k \Delta t}
+\]
+and to second order as
+\[
+	e^{-i\hat H\Delta t} = \prod_{k=1}^K e^{-i\hat h_k \Delta t/2} \cdot
+	\prod_{k=K}^1 e^{-i\hat h_k \Delta t/2}
+\]
 
 \topic{cyan}{Matrix Product States / Operators}
 
