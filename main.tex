@@ -233,6 +233,17 @@ The good thing is that when you have a state following the area law, it should
 be close to a product state meaning that many of the singular values will be
 almost zero and can thus be ignored.
 
+\topic{cyan}{Density Matrix Renormalization Group}
+
+DMRG is a method for finding the ground state of a system.
+What you do is starting with a random state in MPS form, and a Hamiltonian in
+MPO form, go through and calculate the left and right environments.
+You then go through the sites one by one from left to right, and at each one you
+replace the matrix of the state at that site with a new one that minimizes the
+energy.
+Repeat this sweeping from left to right and then right to left until the energy
+converges to some number.
+
 \topic{red}{Monte-Carlo methods}
 
 \cbf{MC integration}:
